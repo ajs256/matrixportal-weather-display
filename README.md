@@ -40,6 +40,11 @@ config = {
     'pa_sensor_id' : '58069' 
     # Head to https://purpleair.com/map and find a sensor near you.
     # You want the sensor ID, which comes after "select=" in the URL once you open a sensor.
+    'units' : 'imperial'
+    # Set your weather units.
+    # "standard" = temp in Kelvin
+    # "imperial" = temp in Farenheit
+    # "metric" = temp in Celcius
 }
 ```
 
