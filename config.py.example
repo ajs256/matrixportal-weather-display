@@ -1,0 +1,12 @@
+
+config = {
+    'ssid' : 'YOUR_SSID',                                       # Your Wifi network name
+    'password' : 'SUPER_SECRET_WIFI_PASSWORD',                  # Wifi password
+    'timezone' : "Etc/GMT",                                     # http://worldtimeapi.org/timezones
+    'aio_username' : 'YOUR_NAME',                               # Get a free https://io.adafruit.com account
+    'aio_key' : 'YOUR_HUGE_AIO_KEY',
+    'openweather_token' : 'YOUR_BIG_OPENWEATHERMAP_KEY',        # Get a free key at https://home.openweathermap.org
+    'latitude' : '0.0000',                                      # Your home latitude
+    'longitude' : '0.0000'                                      # and longitude
+    'pa_sensor_id' : '58069'                                    # Find your sensor at https://purpleair.com/map. The ID will be after "select=" in the URL.
+    }
