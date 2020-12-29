@@ -67,7 +67,7 @@ Download the [latest library bundle](https://circuitpython.org/libraries). Copy 
 ## :warning: NON-MATRIXPORTAL BOARD WARNING! :warning:
 If you have a board that is not a Matrix Portal, the definitions for the ESP32 and matrix pins **WILL NOT WORK!** Here's what you need to change:
 
-* If your board does not have a built-in ESP32, you will need to change lines 283-285 to point to the pins where you hooked up the corresponding pins on the ESP32.
+* If your board does not have a built-in ESP32, you will need to change lines 261-263 to point to the pins where you hooked up the corresponding pins on the ESP32.
 * If your board is not a MatrixPortal, you will need to change lines 40-54 to refer to your matrix's pins. Check the guide for your addon to know which pins to use.
 
 ## Contributing!
