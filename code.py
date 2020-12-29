@@ -1,15 +1,18 @@
 # ############## IMPORTS ###############
 
 # BASICS (these are all built in)
-from time import localtime, monotonic # The function to use the onboard RTC to give us time values
+from time import (
+    localtime,
+    monotonic,
+)  # The function to use the onboard RTC to give us time values
 import board  # Pin definitions
 from terminalio import FONT  # Provides the font we use
 import busio  # Provides SPI for talking to the ESP32
 from digitalio import DigitalInOut  # Provides pin I/O for the ESP32
 from rtc import RTC  # Lets us keep track of the time
 from json import loads  # Lets us parse the JSON we get from the APIs
-from gc import collect  # Garbage collection. The data we get from the APIs is _big_, this helps keep the memory clean
 import neopixel  # To drive the onboard NeoPixel.
+from gc import collect, mem_free
 
 # INTERNET
 import adafruit_requests as requests  # For getting data from the Internet
@@ -166,31 +169,9 @@ PURPLEAIR_URL = "https://www.purpleair.com/json?show={id}".format(
     id=config["pa_sensor_id"]
 )
 
+
 """
-Below functions come from the MatrixPortal PurpleAir Display guide from 
-learn.adafruit.com.
-
-MIT License
-
-Copyright (c) 2018 Adafruit Industries
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+# Below functions come from the MatrixPortal PurpleAir Display guide from learn.adafruit.com. MIT Licensed.
 """
 
 
@@ -282,9 +263,15 @@ busy = DigitalInOut(board.ESP_BUSY)
 rst = DigitalInOut(board.ESP_RESET)
 
 spi = busio.SPI(board.SCK, board.MOSI, board.MISO)  # Define the SPI object
-esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, busy, rst)  # Start talking to the ESP32.
-requests.set_socket(socket, esp)  # Tell the requests library to use the ESP32 connection.
-io = IO_HTTP(config["aio_username"], config["aio_key"], requests)  # Start talking to Adafruit IO.
+esp = adafruit_esp32spi.ESP_SPIcontrol(
+    spi, cs, busy, rst
+)  # Start talking to the ESP32.
+requests.set_socket(
+    socket, esp
+)  # Tell the requests library to use the ESP32 connection.
+io = IO_HTTP(
+    config["aio_username"], config["aio_key"], requests
+)  # Start talking to Adafruit IO.
 
 
 # Print info about the ESP32
@@ -332,7 +319,11 @@ while True:
         print(date_display)
         dow = get_day_of_week(now)  # Calculate the day of the week.
         print("Day of week: " + dow)
-        next_rtc_sync = (current_time + TIME_BETWEEN_RTC_SYNCS)  # Decide when to next sync the time.
+        next_rtc_sync = (
+            current_time + TIME_BETWEEN_RTC_SYNCS
+        )  # Decide when to next sync the time.
+
+        collect()
 
     if current_time > next_weather_check:
         # Check weather and AQI.
@@ -343,23 +334,29 @@ while True:
         aqi = pm_to_aqi(aq_json["results"][0]["PM2_5Value"])  # Calculate the AQI.
         print(aqi)
 
-        collect()  # Run a garbage collection to clear out memory we don't need to be using.
+        print("Before GC: " + str(mem_free()))
+        collect()
+        print("After GC: " + str(mem_free()))
 
         status_pixel.fill(0xFFA500)  # Orange
         print("Getting weather!")
         weather_response = requests.get(
             OPENWEATHER_ENDPOINT
         )  # Grab data from OpenWeather.
+        print("Free memory: " + str(mem_free()))
         weather_json = loads(weather_response.content)  # Parse the JSON.
         temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
         print("Temperature: " + str(temp))
-        rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
+        rain_chance = weather_json["hourly"][0][
+            "pop"
+        ]  # Get the chance of rain today from the JSON.
         print("Rain chance: " + str(rain_chance))
         next_weather_check = current_time + TIME_BETWEEN_WEATHER_CHECKS
         weather_display = "{temp} F,{chance}%".format(
             temp=int(temp), chance=int(rain_chance * 100)  # Calculate what to display.
         )
         print("Displayed weather value:" + weather_display)
+        collect()
 
     time_format(localtime())  # format the time
     dow = get_day_of_week(localtime())  # Calculate the day of the week.
