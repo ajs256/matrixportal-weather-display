@@ -1,3 +1,6 @@
+# WARNING:
+This does not work. It is a work in progress, and is only public so I can get feedback. If you'd like to open a pull request to fix the errors, great! If not, be prepared to have problems.
+
 # Matrix Portal Weather Display
 
 This project will turn your [Adafruit Matrix Portal](https://adafru.it/4812) into a display for the weather, air quality, and time/date!
