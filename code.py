@@ -1,15 +1,13 @@
 # ############## IMPORTS ###############
 
 # BASICS (these are all built in)
-from time import localtime, monotonic # The function to use the onboard RTC to give us time values
-import board  # Pin definitions
-from terminalio import FONT  # Provides the font we use
-import busio  # Provides SPI for talking to the ESP32
-from digitalio import DigitalInOut  # Provides pin I/O for the ESP32
-from rtc import RTC  # Lets us keep track of the time
-from json import loads  # Lets us parse the JSON we get from the APIs
-from gc import collect  # Garbage collection. The data we get from the APIs is _big_, this helps keep the memory clean
-import neopixel  # To drive the onboard NeoPixel.
+import time         # The function to use the onboard RTC to give us time values
+import board        # Pin definitions
+import terminalio   # Provides the font we use
+import busio        # Provides SPI for talking to the ESP32
+import digitalio    # Provides pin I/O for the ESP32
+import rtc          # Lets us keep track of the time 
+import neopixel     # To drive the onboard NeoPixel.
 
 # INTERNET
 import adafruit_requests as requests  # For getting data from the Internet
@@ -39,7 +37,7 @@ displayio.release_displays()
 matrix = rgbmatrix.RGBMatrix(
     width=64,
     height=32,
-    bit_depth=2,
+    bit_depth=3,
     rgb_pins=[
         board.MTX_R1,
         board.MTX_G1,
@@ -59,7 +57,7 @@ display = framebufferio.FramebufferDisplay(matrix)
 
 group = displayio.Group(max_size=5)  # Create a group to hold all our labels
 
-font = FONT  # We'll be using this font for all our labels, let's store it in a variable for later
+font = terminalio.FONT  # We'll be using this font for all our labels, let's store it in a variable for later
 
 
 # Text area 1: Time
@@ -127,8 +125,8 @@ display.show(group)
 TIME_BETWEEN_RTC_SYNCS = 24 * 60 * 60  # 24 hours
 TIME_BETWEEN_WEATHER_CHECKS = 10 * 60  # 10 min
 
-next_rtc_sync = monotonic()
-next_weather_check = monotonic()  # i.e. NOW!
+next_rtc_sync = time.monotonic()
+next_weather_check = time.monotonic()  # i.e. NOW!
 
 
 time_display = None
@@ -166,31 +164,9 @@ PURPLEAIR_URL = "https://www.purpleair.com/json?show={id}".format(
     id=config["pa_sensor_id"]
 )
 
+
 """
-Below functions come from the MatrixPortal PurpleAir Display guide from 
-learn.adafruit.com.
-
-MIT License
-
-Copyright (c) 2018 Adafruit Industries
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+# Below functions come from the MatrixPortal PurpleAir Display guide from learn.adafruit.com. MIT Licensed.
 """
 
 
@@ -271,15 +247,15 @@ OPENWEATHER_ENDPOINT = "https://api.openweathermap.org/data/2.5/onecall?lat={lat
 # ############## NETWORK SETUP ###############
 
 status_pixel = neopixel.NeoPixel(
-    board.NEOPIXEL, 1, brightness=0.1, auto_write=True, pixel_order=neopixel.GRB
+    board.NEOPIXEL, 1, brightness=0.05, auto_write=True, pixel_order=neopixel.GRB
 )  # Uses the onboard NeoPixel.
 status_pixel.fill(0xFF0000)  # red because we aren't connected yet
 
 # Here, we define the pins the ESP32 uses. This only works for boards with built-in ESP32s,
 # such as the MatrixPortal and Metro M4 Airlift. Read the guide for your add-on to find which pins to use.
-cs = DigitalInOut(board.ESP_CS)
-busy = DigitalInOut(board.ESP_BUSY)
-rst = DigitalInOut(board.ESP_RESET)
+cs = digitalio.DigitalInOut(board.ESP_CS)
+busy = digitalio.DigitalInOut(board.ESP_BUSY)
+rst = digitalio.DigitalInOut(board.ESP_RESET)
 
 spi = busio.SPI(board.SCK, board.MOSI, board.MISO)  # Define the SPI object
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, busy, rst)  # Start talking to the ESP32.
@@ -319,38 +295,37 @@ status_pixel.fill(0x00FF00)  # we're connected, so make it green
 aqi = 0
 
 while True:
-    current_time = monotonic()
+    current_time = time.monotonic()
     if current_time > next_rtc_sync:
         status_pixel.fill(0x0000FF)  # blue while we're syncing the time
         print("Syncing time:")
         now = io.receive_time()  # grab time
         print("Got time")
         print(now)
-        RTC().datetime = now  # set the time
-        time_format(localtime())  # format the time
+        rtc.RTC().datetime = now  # set the time
+        time_format(time.localtime())  # format the time
         print(time_display)  # Print it to serial, for debugging.
         print(date_display)
         dow = get_day_of_week(now)  # Calculate the day of the week.
         print("Day of week: " + dow)
-        next_rtc_sync = (current_time + TIME_BETWEEN_RTC_SYNCS)  # Decide when to next sync the time.
+        next_rtc_sync = (
+            current_time + TIME_BETWEEN_RTC_SYNCS
+        )  # Decide when to next sync the time.
 
     if current_time > next_weather_check:
         # Check weather and AQI.
         status_pixel.fill(0x00FFFF)  # cyan
         print("Getting AQI!")
         aq_response = requests.get(PURPLEAIR_URL)  # Grab data from PurpleAir.
-        aq_json = loads(aq_response.content)  # Parse the json.
-        aqi = pm_to_aqi(aq_json["results"][0]["PM2_5Value"])  # Calculate the AQI.
+        aqi = pm_to_aqi(aq_response.json()["results"][0]["PM2_5Value"])  # Calculate the AQI.
         print(aqi)
 
-        collect()  # Run a garbage collection to clear out memory we don't need to be using.
+        del aq_response # Get rid of it because we no longer need it
 
         status_pixel.fill(0xFFA500)  # Orange
         print("Getting weather!")
-        weather_response = requests.get(
-            OPENWEATHER_ENDPOINT
-        )  # Grab data from OpenWeather.
-        weather_json = loads(weather_response.content)  # Parse the JSON.
+        weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
+        weather_json = weather_response.json() # Parse the JSON.
         temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
         print("Temperature: " + str(temp))
         rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
@@ -360,9 +335,12 @@ while True:
             temp=int(temp), chance=int(rain_chance * 100)  # Calculate what to display.
         )
         print("Displayed weather value:" + weather_display)
+        
+        del weather_response
+        del weather_json
 
-    time_format(localtime())  # format the time
-    dow = get_day_of_week(localtime())  # Calculate the day of the week.
+    time_format(time.localtime())  # format the time
+    dow = get_day_of_week(time.localtime())  # Calculate the day of the week.
     status_pixel.fill(0x00FF00)  # Light up green when we're idle
     # Update the display...
     time_area.text = time_display
