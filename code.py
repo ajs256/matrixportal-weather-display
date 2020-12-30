@@ -258,9 +258,15 @@ busy = digitalio.DigitalInOut(board.ESP_BUSY)
 rst = digitalio.DigitalInOut(board.ESP_RESET)
 
 spi = busio.SPI(board.SCK, board.MOSI, board.MISO)  # Define the SPI object
-esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, busy, rst)  # Start talking to the ESP32.
-requests.set_socket(socket, esp)  # Tell the requests library to use the ESP32 connection.
-io = IO_HTTP(config["aio_username"], config["aio_key"], requests)  # Start talking to Adafruit IO.
+esp = adafruit_esp32spi.ESP_SPIcontrol(
+    spi, cs, busy, rst
+)  # Start talking to the ESP32.
+requests.set_socket(
+    socket, esp
+)  # Tell the requests library to use the ESP32 connection.
+io = IO_HTTP(
+    config["aio_username"], config["aio_key"], requests
+)  # Start talking to Adafruit IO.
 
 
 # Print info about the ESP32
@@ -328,7 +334,9 @@ while True:
         weather_json = weather_response.json() # Parse the JSON.
         temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
         print("Temperature: " + str(temp))
-        rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
+        rain_chance = weather_json["hourly"][0][
+            "pop"
+        ]  # Get the chance of rain today from the JSON.
         print("Rain chance: " + str(rain_chance))
         next_weather_check = current_time + TIME_BETWEEN_WEATHER_CHECKS
         weather_display = "{temp} F,{chance}%".format(
