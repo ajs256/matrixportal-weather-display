@@ -40,11 +40,15 @@ config = {
     'pa_sensor_id' : '58069' 
     # Head to https://purpleair.com/map and find a sensor near you.
     # You want the sensor ID, which comes after "select=" in the URL once you open a sensor.
-    'units' : 'imperial'
+    'units' : 'imperial',
     # Set your weather units.
     # "standard" = temp in Kelvin
     # "imperial" = temp in Farenheit
     # "metric" = temp in Celcius
+    'handle_exceptions' : True,
+    # Whether to handle exceptions (by auto-resetting in case of MemoryErrors and sending exceptions to Adafruit IO, if enabled. I strongly recommend having this on.
+    'debug_feed' : None
+    # The name of an Adafruit IO feed to send exceptions to. Set to None (without quotes!) to disable.
 }
 ```
 
