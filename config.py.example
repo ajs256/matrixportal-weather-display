@@ -9,8 +9,10 @@ config = {
     'latitude' : '0.0000',                                      # Your home latitude
     'longitude' : '0.0000',                                     # and longitude
     'pa_sensor_id' : '58069',                                    # Find your sensor at https://purpleair.com/map. The ID will be after "select=" in the URL.
-    'units' : 'imperial'
+    'units' : 'imperial',
     # "standard" = temp in Kelvin
     # "imperial" = temp in Farenheit
     # "metric" = temp in Celcius
+    'handle_exceptions' : True,                                 # Whether or not to handle exceptions. Strongly recommended to have this on.
+    'debug_feed' : None                                         # The name of an Adafruit IO feed to send exceptions to. Set to None to disable.
     }
