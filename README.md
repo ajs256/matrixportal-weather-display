@@ -46,7 +46,7 @@ config = {
     # "imperial" = temp in Farenheit
     # "metric" = temp in Celcius
     'handle_exceptions' : True,
-    # Whether to handle exceptions (by auto-resetting in case of MemoryErrors and sending exceptions to Adafruit IO, if enabled. I strongly recommend having this on.
+    # Whether to handle exceptions (by auto-resetting in case of MemoryErrors and sending exceptions to Adafruit IO, if enabled). I strongly recommend having this on.
     'debug_feed' : None
     # The name of an Adafruit IO feed to send exceptions to. Set to None (without quotes!) to disable.
 }
