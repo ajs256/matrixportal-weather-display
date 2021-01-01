@@ -148,6 +148,7 @@ def time_format(current):
 
     time_display = "{:d}:{:02d}{}".format(hour, current.tm_min, am_pm)
     date_display = "{:d}/{:d}".format(current.tm_mon, current.tm_mday)
+    padded_date_display = f'{date: >5}' # That's called an F-string, and that's all I know about it.
 
 
 def get_day_of_week(date):
@@ -348,7 +349,7 @@ while True:
         weather_area.text = weather_display
         aqi_area.text = "AQI: " + str(aqi)
         aqi_area.color = get_color(aqi)
-        date_area.text = date_display
+        date_area.text = padded_date_display
         dow = get_day_of_week(time.localtime())
         dow_area.text = dow
 
