@@ -137,6 +137,7 @@ dow = "..."
 def time_format(current):
     global time_display
     global date_display
+    global padded_date_display
 
     hour = current.tm_hour % 12
     if hour == 0:
