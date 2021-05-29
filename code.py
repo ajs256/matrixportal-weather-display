@@ -148,7 +148,7 @@ def time_format(current):
 
     time_display = "{:d}:{:02d}{}".format(hour, current.tm_min, am_pm)
     date_display = "{:d}/{:d}".format(current.tm_mon, current.tm_mday)
-    padded_date_display = f'{date: >5}' # That's called an F-string, and that's all I know about it.
+    padded_date_display = f'{date_display: >5}' # That's called an F-string, and that's all I know about it.
 
 
 def get_day_of_week(date):
