@@ -296,73 +296,59 @@ status_pixel.fill(0x00FF00)  # we're connected, so make it green
 aqi = 0
 
 while True:
-    try:
-        current_time = time.monotonic()
-        if current_time > next_rtc_sync:
-            status_pixel.fill(0x0000FF)  # blue while we're syncing the time
-            print("Syncing time:")
-            now = io.receive_time()  # grab time
-            print("Got time")
-            print(now)
-            rtc.RTC().datetime = now  # set the time
-            time_format(time.localtime())  # format the time
-            print(time_display)  # Print it to serial, for debugging.
-            print(date_display)
-            dow = get_day_of_week(now)  # Calculate the day of the week.
-            print("Day of week: " + dow)
-            next_rtc_sync = (
-                current_time + TIME_BETWEEN_RTC_SYNCS
-            )  # Decide when to next sync the time.
-
-        if current_time > next_weather_check:
-            # Check weather and AQI.
-            status_pixel.fill(0x00FFFF)  # cyan
-            print("Getting AQI!")
-            aq_response = requests.get(PURPLEAIR_URL)  # Grab data from PurpleAir.
-            aqi = pm_to_aqi(aq_response.json()["results"][0]["PM2_5Value"])  # Calculate the AQI.
-            print(aqi)
-
-            del aq_response # Get rid of it because we no longer need it
-
-            status_pixel.fill(0xFFA500)  # Orange
-            print("Getting weather!")
-            weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
-            weather_json = weather_response.json() # Parse the JSON.
-            temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
-            print("Temperature: " + str(temp))
-            rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
-            print("Rain chance: " + str(rain_chance))
-            next_weather_check = current_time + TIME_BETWEEN_WEATHER_CHECKS
-            weather_display = "{temp} F,{chance}%".format(
-                temp=int(temp), chance=int(rain_chance * 100)  # Calculate what to display.
-            )
-            print("Displayed weather value:" + weather_display)
-            
-            del weather_response
-            del weather_json
-
+    current_time = time.monotonic()
+    if current_time > next_rtc_sync:
+        status_pixel.fill(0x0000FF)  # blue while we're syncing the time
+        print("Syncing time:")
+        now = io.receive_time()  # grab time
+        print("Got time")
+        print(now)
+        rtc.RTC().datetime = now  # set the time
         time_format(time.localtime())  # format the time
-        dow = get_day_of_week(time.localtime())  # Calculate the day of the week.
-        status_pixel.fill(0x00FF00)  # Light up green when we're idle
-        # Update the display...
-        time_area.text = time_display
-        weather_area.text = weather_display
-        aqi_area.text = "AQI: " + str(aqi)
-        aqi_area.color = get_color(aqi)
-        date_area.text = padded_date_display
-        dow = get_day_of_week(time.localtime())
-        dow_area.text = dow
+        print(time_display)  # Print it to serial, for debugging.
+        print(date_display)
+        dow = get_day_of_week(now)  # Calculate the day of the week.
+        print("Day of week: " + dow)
+        next_rtc_sync = (
+            current_time + TIME_BETWEEN_RTC_SYNCS
+        )  # Decide when to next sync the time.
 
-    except MemoryError as error: # If we ran into a MemoryError:
-        if config["handle_exceptions"]: # If we're handling exceptions:   
-            if config["debug_feed"] != None:
-                io.send_data(config["debug_feed"], "MemoryError: " + str(error))
-            import microcontroller
-            microcontroller.reset()
-        else: # If we aren't handling exceptions,
-            raise # raise the exception
-    
-    except Exception as error:
-        if config["handle_exceptions"] and config["debug_feed"]: # If we're handling exceptions and we're sending them to the cloud,
-            io.send_data(config["debug_feed"], "Other error: " + str(error)) # Send it
-        raise # Raise the exception
+    if current_time > next_weather_check:
+        # Check weather and AQI.
+        status_pixel.fill(0x00FFFF)  # cyan
+        print("Getting AQI!")
+        aq_response = requests.get(PURPLEAIR_URL)  # Grab data from PurpleAir.
+        aqi = pm_to_aqi(aq_response.json()["results"][0]["PM2_5Value"])  # Calculate the AQI.
+        print(aqi)
+
+        del aq_response # Get rid of it because we no longer need it
+
+        status_pixel.fill(0xFFA500)  # Orange
+        print("Getting weather!")
+        weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
+        weather_json = weather_response.json() # Parse the JSON.
+        temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
+        print("Temperature: " + str(temp))
+        rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
+        print("Rain chance: " + str(rain_chance))
+        next_weather_check = current_time + TIME_BETWEEN_WEATHER_CHECKS
+        weather_display = "{temp} F,{chance}%".format(
+            temp=int(temp), chance=int(rain_chance * 100)  # Calculate what to display.
+        )
+        print("Displayed weather value:" + weather_display)
+
+        del weather_response
+        del weather_json
+
+    time_format(time.localtime())  # format the time
+    dow = get_day_of_week(time.localtime())  # Calculate the day of the week.
+    status_pixel.fill(0x00FF00)  # Light up green when we're idle
+    # Update the display...
+    time_area.text = time_display
+    weather_area.text = weather_display
+    aqi_area.text = "AQI: " + str(aqi)
+    aqi_area.color = get_color(aqi)
+    date_area.text = padded_date_display
+    dow = get_day_of_week(time.localtime())
+    dow_area.text = dow
+
