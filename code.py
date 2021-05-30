@@ -347,7 +347,7 @@ while True:
     # Update the display...
     time_area.text = time_display
     weather_area.text = weather_display
-    aqi_area.text = "AQI: " + str(aqi)
+    aqi_area.text = "AQI:" + str(aqi)
     aqi_area.color = get_color(aqi)
     date_area.text = padded_date_display
     dow = get_day_of_week(time.localtime())
