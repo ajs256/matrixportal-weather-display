@@ -4,7 +4,7 @@ This project will turn your [Adafruit Matrix Portal](https://adafru.it/4812) int
 
 ## What You Need
 
-* An [Adafruit Matrix Portal](https://adafru.it/4715)
+* An [Adafruit Matrix Portal](https://adafru.it/4745)
     * You could use any CircuitPython-compatible dev board, as long as it has (or can add) WiFi and an LED matrix addon.
 * An [LED matrix](https://adafru.it/2278). I used a 64x32 one, but you could adapt it to any size.
 * A free [Adafruit IO](https://adafruit.io) account. We use it to set the time, but it could probably be adapted to use NTP.
