@@ -333,7 +333,7 @@ while True:
                 weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
                 weather_json = weather_response.json() # Parse the JSON.
             except RuntimeError as ex:
-                print("Failed to get weather: " + ex)
+                print("Failed to get weather: " + str(ex))
                 if i == 3:
                     raise  # We're done here, let's give up.
             else: # If it is successful:
