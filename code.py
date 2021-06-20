@@ -326,8 +326,18 @@ while True:
 
         status_pixel.fill(0xFFA500)  # Orange
         print("Getting weather!")
-        weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
-        weather_json = weather_response.json() # Parse the JSON.
+        # This fails often, so let's keep trying.
+        for i in range(1, 4):  # inclusive, exclusive
+            print("Try " + i + " of 3")
+            try:
+                weather_response = requests.get(OPENWEATHER_ENDPOINT)  # Grab data from OpenWeather.
+                weather_json = weather_response.json() # Parse the JSON.
+            except RuntimeError as ex:
+                print("Failed to get weather: " + ex)
+                if i == 3:
+                    raise  # We're done here, let's give up.
+            else: # If it is successful:
+                break
         temp = weather_json["current"]["temp"]  # Pull the temperature out of the JSON.
         print("Temperature: " + str(temp))
         rain_chance = weather_json["hourly"][0]["pop"]  # Get the chance of rain today from the JSON.
