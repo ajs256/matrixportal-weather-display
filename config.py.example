@@ -13,6 +13,4 @@ config = {
     # "standard" = temp in Kelvin
     # "imperial" = temp in Farenheit
     # "metric" = temp in Celcius
-    'handle_exceptions' : True,                                 # Whether or not to handle exceptions. Strongly recommended to have this on.
-    'debug_feed' : None                                         # The name of an Adafruit IO feed to send exceptions to. Set to None to disable.
     }
