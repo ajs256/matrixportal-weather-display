@@ -334,6 +334,7 @@ while True:
                 weather_json = weather_response.json() # Parse the JSON.
             except RuntimeError as ex:
                 print("Failed to get weather: " + str(ex))
+                time.sleep(30)
                 if i == 3:
                     raise  # We're done here, let's give up.
             else: # If it is successful:
