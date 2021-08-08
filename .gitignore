@@ -36,3 +36,5 @@ Temporary Items
 
 # Config file can contain secrets
 config.py
+
+.vscode
